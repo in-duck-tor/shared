@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InDuckTor.Shared", "src\InDuckTor.Shared\InDuckTor.Shared.csproj", "{D767203F-AEC8-4E2F-B65B-8EDE7F7FB000}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LocalSandbox", "LocalSandbox\LocalSandbox.csproj", "{A8FD8B74-4725-4270-B93A-C9F474D1810A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D767203F-AEC8-4E2F-B65B-8EDE7F7FB000}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D767203F-AEC8-4E2F-B65B-8EDE7F7FB000}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D767203F-AEC8-4E2F-B65B-8EDE7F7FB000}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D767203F-AEC8-4E2F-B65B-8EDE7F7FB000}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A8FD8B74-4725-4270-B93A-C9F474D1810A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A8FD8B74-4725-4270-B93A-C9F474D1810A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A8FD8B74-4725-4270-B93A-C9F474D1810A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A8FD8B74-4725-4270-B93A-C9F474D1810A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
