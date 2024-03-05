@@ -21,4 +21,4 @@ public interface IStrategyInterceptor<TInput, TOutput>
 public interface IExecutor<TStrategy, in TInput, TOutput> where TStrategy : IStrategy<TInput, TOutput>
 {
     Task<TOutput> Execute(TInput input, CancellationToken ct);
-} 
+}
