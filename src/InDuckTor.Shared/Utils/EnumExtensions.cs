@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.Serialization;
 
@@ -17,6 +18,11 @@ public static class EnumExtensions
         where TEnum : struct, Enum
         => EnumMemberNameByValueCache.GetOrAdd(new EnumValueCacheKey(typeof(TEnum), value), GetEnumMemberValue)
            ?? Enum.GetName(value)!;
+
+    public static bool TryGetEnumMemberName(Type enumType, Enum enumValue, [NotNullWhen(true)] out string? enumMemberValue)
+        => (enumMemberValue =
+               EnumMemberNameByValueCache.GetOrAdd(new EnumValueCacheKey(enumType, enumValue), GetEnumMemberValue))
+           != null;
 
     private static string? GetEnumMemberValue(EnumValueCacheKey key)
     {
