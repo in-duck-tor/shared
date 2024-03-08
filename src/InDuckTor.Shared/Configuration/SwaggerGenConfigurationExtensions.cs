@@ -9,7 +9,7 @@ namespace InDuckTor.Shared.Configuration;
 
 public static class SwaggerGenConfigurationExtensions
 {
-    public static void ConfigureJwtAuth(SwaggerGenOptions options)
+    public static void ConfigureJwtAuth(this SwaggerGenOptions options)
     {
         options.AddSecurityDefinition("auth", new OpenApiSecurityScheme
         {
@@ -31,7 +31,7 @@ public static class SwaggerGenConfigurationExtensions
         });
     }
 
-    public static void ConfigureEnumMemberValues(SwaggerGenOptions options)
+    public static void ConfigureEnumMemberValues(this SwaggerGenOptions options)
     {
         options.SchemaFilter<EnumMemberSchemaFilter>();
     }
