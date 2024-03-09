@@ -12,7 +12,8 @@ internal static class TokenValidator
             ValidateAudience = false,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = !settings.OmitSignature,
-            RequireExpirationTime = false,
+            RequireSignedTokens = !settings.OmitSignature,
+            RequireExpirationTime = true,
             ValidIssuer = settings.Issuer,
             ValidAudience = settings.Audience,
             IssuerSigningKey = settings.OmitSignature ? null : new SymmetricSecurityKey(Encoding.UTF8.GetBytes(settings.SecretKey!))
