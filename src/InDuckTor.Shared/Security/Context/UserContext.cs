@@ -31,6 +31,29 @@ public record UserContext(
     IReadOnlyCollection<string> Permissions,
     IReadOnlyCollection<Claim> Claims)
 {
+    /// <summary>
+    /// Создаёт <see cref="UserContext"/> и наполняет <see cref="Claims"/> из переданных аргументов
+    /// </summary>
+    public static UserContext Create(int id, string login, string? clientId, AccountType accountType, IEnumerable<string> permissions,
+        IEnumerable<Claim>? additionalClaims = null)
+    {
+        var permissionsList = permissions.ToList();
+        List<Claim> claims =
+        [
+            new(InDuckTorClaims.Id, id.ToString()),
+            new(InDuckTorClaims.Login, login),
+            new(InDuckTorClaims.AccountType, accountType.GetEnumMemberName()),
+        ];
+
+        claims.AddRange(permissionsList.Select(permission => new Claim(InDuckTorClaims.Permission, permission)));
+        if (clientId != null)
+            claims.Add(new Claim(InDuckTorClaims.ClientId, clientId));
+        if (additionalClaims != null)
+            claims.AddRange(additionalClaims);
+
+        return new UserContext(id, login, clientId, accountType, permissionsList, claims);
+    }
+
     public static bool TryCreateFromClaims(IEnumerable<Claim> claims, [NotNullWhen(true)] out UserContext? userContext)
     {
         var claimsList = claims.ToList();

@@ -33,6 +33,8 @@ public static class DependencyRegistration
         return serviceCollection;
     }
 
+    /// <param name="serviceCollection"></param>
+    /// <param name="configuration">Секция конфигурации для <see cref="JwtSettings"/></param>
     public static IServiceCollection AddInDuckTorAuthentication(this IServiceCollection serviceCollection, IConfiguration configuration)
     {
         var jwtSettings = configuration.Get<JwtSettings>()
