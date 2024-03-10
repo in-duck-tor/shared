@@ -1,3 +1,4 @@
+using System.IdentityModel.Tokens.Jwt;
 using InDuckTor.Shared.Security.Context;
 using InDuckTor.Shared.Security.Http;
 using InDuckTor.Shared.Security.Jwt;
@@ -6,6 +7,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace InDuckTor.Shared.Security;
 
@@ -13,9 +15,13 @@ namespace InDuckTor.Shared.Security;
 public static class DependencyRegistration
 {
     public static IServiceCollection AddInDuckTorSecurity(this IServiceCollection serviceCollection)
-        => serviceCollection
+    {
+        JsonWebTokenHandler.DefaultInboundClaimTypeMap.Clear();
+        JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+        return serviceCollection
             .AddScoped<ISecurityContext, SecurityContext>()
             .AddScoped<SecurityContextMiddleware>();
+    }
 
     public static IApplicationBuilder UseInDuckTorSecurity(this IApplicationBuilder builder)
         => builder.UseMiddleware<SecurityContextMiddleware>();
@@ -30,6 +36,7 @@ public static class DependencyRegistration
                                   && (!string.IsNullOrEmpty(settings.SecretKey) || settings.OmitSignature));
 
         serviceCollection.TryAddSingleton<ITokenFactory, TokenFactory>();
+        JwtSecurityTokenHandler.DefaultOutboundClaimTypeMap.Clear();
         return serviceCollection;
     }
 

@@ -18,7 +18,7 @@ public class SecurityContext : ISecurityContext
     {
         public void Dispose()
         {
-            if (object.ReferenceEquals(associatedUserContext, scopesStack.Peek()))
+            if (!object.ReferenceEquals(associatedUserContext, scopesStack.Peek()))
                 throw new InvalidOperationException($"Область видимости для {associatedUserContext} закрыта в неправильном порядке");
 
             scopesStack.Pop();
