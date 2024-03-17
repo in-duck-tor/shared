@@ -1,31 +1,15 @@
 using System.IdentityModel.Tokens.Jwt;
-using InDuckTor.Shared.Security.Context;
-using InDuckTor.Shared.Security.Http;
-using InDuckTor.Shared.Security.Jwt;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.IdentityModel.JsonWebTokens;
 
-namespace InDuckTor.Shared.Security;
+namespace InDuckTor.Shared.Security.Jwt;
 
 // todo add documentation
 public static class DependencyRegistration
 {
-    public static IServiceCollection AddInDuckTorSecurity(this IServiceCollection serviceCollection)
-    {
-        JsonWebTokenHandler.DefaultInboundClaimTypeMap.Clear();
-        JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
-        return serviceCollection
-            .AddScoped<ISecurityContext, SecurityContext>()
-            .AddScoped<SecurityContextMiddleware>();
-    }
-
-    public static IApplicationBuilder UseInDuckTorSecurity(this IApplicationBuilder builder)
-        => builder.UseMiddleware<SecurityContextMiddleware>();
-
     public static IServiceCollection AddInDuckTorJwt(this IServiceCollection serviceCollection, IConfiguration configuration)
     {
         serviceCollection
@@ -44,6 +28,8 @@ public static class DependencyRegistration
     /// <param name="configuration">Секция конфигурации для <see cref="JwtSettings"/></param>
     public static IServiceCollection AddInDuckTorAuthentication(this IServiceCollection serviceCollection, IConfiguration configuration)
     {
+        JsonWebTokenHandler.DefaultInboundClaimTypeMap.Clear();
+        JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
         var jwtSettings = configuration.Get<JwtSettings>()
                           ?? throw new ArgumentException("Невозможно извлечь настройки JWT из конфигурации", nameof(configuration));
         serviceCollection.AddInDuckTorJwt(configuration)
