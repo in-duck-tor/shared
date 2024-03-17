@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using InDuckTor.Shared.Strategies.Interceptors;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -34,11 +35,16 @@ public static class DependencyRegistration
 
     private static IEnumerable<Type> GetInterceptorTypesFor(Type strategyType, Type strategyInterfaceType)
     {
-        var interceptAttributes = strategyType.GetCustomAttributes<InterceptAttribute>().ToList();
-
         var inputType = strategyInterfaceType.GetGenericArguments()[0];
         var outputType = strategyInterfaceType.GetGenericArguments()[1];
 
+        return GetExplicitInterceptorsTypesFor(strategyType, inputType, outputType)
+            .Concat(RequirePermissionInterceptorRegistry.TrySetupForStrategy(strategyType, inputType, outputType));
+    }
+
+    private static IEnumerable<Type> GetExplicitInterceptorsTypesFor(Type strategyType, Type inputType, Type outputType)
+    {
+        var interceptAttributes = strategyType.GetCustomAttributes<InterceptAttribute>().ToList();
         var generalInterceptorType = typeof(IStrategyInterceptor<,>).MakeGenericType(inputType, outputType);
 
         foreach (var interceptAttribute in interceptAttributes)
