@@ -22,21 +22,21 @@ public class RequirePermissionAttribute : Attribute, IRequirePermissionData
     public RequirePermissionAttribute(string permissionId) => PermissionId = permissionId;
 }
 
-public interface IOverridePrivilegeData
+/// <summary>
+/// Разрешить специальный доступ для системы  
+/// </summary>
+[AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+public class AllowSystemAttribute : Attribute
 {
-    public string PermissionId { get; }
-}
-
-[AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-public class OverridePrivilegeAttribute : Attribute, IOverridePrivilegeData
-{
-    public OverridePrivilegeAttribute(string permissionId) => PermissionId = permissionId;
-    public string PermissionId { get; }
+    /// <summary>
+    /// Только система
+    /// </summary>
+    public bool Only { get; init; } = false;
 }
 
 internal static class RequirePermissionInterceptorRegistry
 {
-    internal readonly record struct InterceptorContext(IReadOnlyList<IRequirePermissionData> RequiredPermissions, IReadOnlyList<IOverridePrivilegeData> OverridePrivileges);
+    internal readonly record struct InterceptorContext(IReadOnlyList<IRequirePermissionData> RequiredPermissions, bool AllowSystem = false, bool SystemOnly = false);
 
     private static readonly Dictionary<Type, InterceptorContext> PermissionsRegistry = new();
 
@@ -64,8 +64,8 @@ internal static class RequirePermissionInterceptorRegistry
         if (permissionAttributes.Length == 0) return (interceptor = null) != null;
         interceptor = typeof(RequirePermissionsThrowingInterceptor<,,>).MakeGenericType(strategyType, input, output);
 
-        var overridePrivilegeAttributes = strategyType.GetCustomAttributes<OverridePrivilegeAttribute>().ToArray();
-        PermissionsRegistry.Add(interceptor, new InterceptorContext(permissionAttributes, overridePrivilegeAttributes));
+        var allowSystemAttribute = strategyType.GetCustomAttributes<AllowSystemAttribute>().FirstOrDefault();
+        PermissionsRegistry.Add(interceptor, new InterceptorContext(permissionAttributes, allowSystemAttribute != null, allowSystemAttribute?.Only ?? false));
 
         return true;
     }
@@ -79,8 +79,8 @@ internal static class RequirePermissionInterceptorRegistry
         if (permissionAttributes.Length == 0) return (interceptor = null) != null;
         interceptor = typeof(RequirePermissionsInterceptor<,,>).MakeGenericType(strategyType, input, output);
 
-        var overridePrivilegeAttributes = strategyType.GetCustomAttributes<OverridePrivilegeAttribute>().ToArray();
-        PermissionsRegistry.Add(interceptor, new InterceptorContext(permissionAttributes, overridePrivilegeAttributes));
+        var allowSystemAttribute = strategyType.GetCustomAttributes<AllowSystemAttribute>().FirstOrDefault();
+        PermissionsRegistry.Add(interceptor, new InterceptorContext(permissionAttributes, allowSystemAttribute != null, allowSystemAttribute?.Only ?? false));
         return true;
     }
 }
@@ -113,15 +113,17 @@ public class RequirePermissionsThrowingInterceptor<TTargetStrategy, TInput, TOut
 
 internal static class RequirePermissionInterceptorContextExtensions
 {
-    internal static bool CheckPermissions(this RequirePermissionInterceptorRegistry.InterceptorContext context, UserContext userContext, [NotNullWhen(false)] out string? errorMessage)
+    internal static bool CheckPermissions(this RequirePermissionInterceptorRegistry.InterceptorContext context, UserContext userContext, out string? errorMessage)
     {
-        var permissions = userContext.Permissions;
+        errorMessage = null;
+        
+        var systemPrivilege = context.AllowSystem && userContext.AccountType == AccountType.System;
+        if (context.SystemOnly && !systemPrivilege) return false;
+        
         errorMessage = context.RequiredPermissions
-            .FirstOrDefault(data => !permissions.Contains(data.PermissionId))
+            .FirstOrDefault(data => !userContext.Permissions.Contains(data.PermissionId))
             ?.ErrorMessage;
 
-        var hasOverridePrivilege = context.OverridePrivileges.Any(data => permissions.Contains(data.PermissionId));
-
-        return errorMessage is not null || hasOverridePrivilege;
+        return errorMessage is not null || systemPrivilege;
     }
 }
