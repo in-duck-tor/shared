@@ -77,7 +77,16 @@ internal static class RequirePermissionInterceptorRegistry
             .ToArray();
 
         if (permissionAttributes.Length == 0) return (interceptor = null) != null;
-        interceptor = typeof(RequirePermissionsInterceptor<,,>).MakeGenericType(strategyType, input, output);
+
+        if (!output.IsGenericType || output.GetGenericTypeDefinition() == typeof(Result<>))
+        {
+            throw new InvalidOperationException($"Невозможно зарегистрировать интерсептор для проверки привилегий для {strategyType}, " +
+                                                $"возвращаемый тип должен быть {typeof(Result<>)}, " +
+                                                $"или используйте поведение {nameof(RequirePermissionAttribute)}.{nameof(RequirePermissionAttribute.Throws)}");
+        }
+
+        var resultValueType = output.GetGenericArguments()[0];
+        interceptor = typeof(RequirePermissionsInterceptor<,,>).MakeGenericType(strategyType, input, resultValueType);
 
         var allowSystemAttribute = strategyType.GetCustomAttributes<AllowSystemAttribute>().FirstOrDefault();
         PermissionsRegistry.Add(interceptor, new InterceptorContext(permissionAttributes, allowSystemAttribute != null, allowSystemAttribute?.Only ?? false));
@@ -116,10 +125,10 @@ internal static class RequirePermissionInterceptorContextExtensions
     internal static bool CheckPermissions(this RequirePermissionInterceptorRegistry.InterceptorContext context, UserContext userContext, out string? errorMessage)
     {
         errorMessage = null;
-        
+
         var systemPrivilege = context.AllowSystem && userContext.AccountType == AccountType.System;
         if (context.SystemOnly && !systemPrivilege) return false;
-        
+
         errorMessage = context.RequiredPermissions
             .FirstOrDefault(data => !userContext.Permissions.Contains(data.PermissionId))
             ?.ErrorMessage;
