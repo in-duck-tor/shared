@@ -78,7 +78,7 @@ internal static class RequirePermissionInterceptorRegistry
 
         if (permissionAttributes.Length == 0) return (interceptor = null) != null;
 
-        if (!output.IsGenericType || output.GetGenericTypeDefinition() == typeof(Result<>))
+        if (!output.IsGenericType || output.GetGenericTypeDefinition() != typeof(Result<>))
         {
             throw new InvalidOperationException($"Невозможно зарегистрировать интерсептор для проверки привилегий для {strategyType}, " +
                                                 $"возвращаемый тип должен быть {typeof(Result<>)}, " +
