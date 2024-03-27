@@ -1,5 +1,5 @@
-using System.IdentityModel.Tokens.Jwt;
 using System.Text;
+using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 
 namespace InDuckTor.Shared.Security.Jwt;
@@ -21,7 +21,7 @@ internal static class TokenValidator
                 ? null 
                 : new SymmetricSecurityKey(Encoding.UTF8.GetBytes(settings.SecretKey!)),
             SignatureValidator = settings.OmitSignature 
-                ? (token, _) => new JwtSecurityToken(token) 
+                ? (token, _) => new JsonWebToken(token) 
                 : null
         };
 }
