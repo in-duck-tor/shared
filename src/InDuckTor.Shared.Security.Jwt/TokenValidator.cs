@@ -1,3 +1,4 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 
@@ -16,6 +17,11 @@ internal static class TokenValidator
             RequireExpirationTime = true,
             ValidIssuer = settings.Issuer,
             ValidAudience = settings.Audience,
-            IssuerSigningKey = settings.OmitSignature ? null : new SymmetricSecurityKey(Encoding.UTF8.GetBytes(settings.SecretKey!))
+            IssuerSigningKey = settings.OmitSignature 
+                ? null 
+                : new SymmetricSecurityKey(Encoding.UTF8.GetBytes(settings.SecretKey!)),
+            SignatureValidator = settings.OmitSignature 
+                ? (token, _) => new JwtSecurityToken(token) 
+                : null
         };
 }

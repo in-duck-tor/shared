@@ -17,7 +17,8 @@ public static class DependencyRegistration
             .AddOptions<JwtSettings>()
             .Validate(settings => !string.IsNullOrWhiteSpace(settings.Audience)
                                   && !string.IsNullOrWhiteSpace(settings.Issuer)
-                                  && (!string.IsNullOrEmpty(settings.SecretKey) || settings.OmitSignature));
+                                  && (!string.IsNullOrEmpty(settings.SecretKey) || settings.OmitSignature))
+            .ValidateOnStart();
 
         serviceCollection.TryAddSingleton<ITokenFactory, TokenFactory>();
         JwtSecurityTokenHandler.DefaultOutboundClaimTypeMap.Clear();
